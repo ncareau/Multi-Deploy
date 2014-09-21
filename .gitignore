@@ -1,0 +1,9 @@
+
+#Project files.
+*.iml
+.idea
+
+#Used for testing/debugging MultiDeploy.
+testdeploy
+testrepo
+testconfig
