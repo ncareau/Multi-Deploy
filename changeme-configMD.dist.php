@@ -55,8 +55,6 @@ return array(
      */
 
     "CUSTOM_FIELDS" => array(
-        new MD_FIELD("TEST_CHECK", "Test Checkbox", MD_FIELD::TYPE_CHECKBOX, false),
-        new MD_FIELD("TEST_FIELD", "Test textfield", MD_FIELD::TYPE_TEXTFIELD, "test")
     ),
 
     /************************************
@@ -67,10 +65,7 @@ return array(
      */
 
     "CMDS_PRE_DEPLOY" => array(
-        new MD_CMD('/path/to/bin/backupBD.sh', array()),
-        new MD_CMD('/path/to/bin/pradomode.sh -d -f %s',array(
-            '%PROJECT_PATH%/protected/application.php'
-        ))
+
     ),
     "CMDS_DEPLOY" => array(
 
@@ -79,14 +74,10 @@ return array(
 
     ),
     "CMDS_ON_SUCCESS" => array(
-        new MD_CMD('ls %s', array(
-            '-al'
-        ))
+
     ),
     "CMDS_ON_FAIL" => array(
-        new MD_CMD('ls %s', array(
-            '-al'
-        ))
+
     ),
 
 );

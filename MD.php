@@ -16,7 +16,7 @@ class MD {
     const VERSION = "0.9.2";
 
     // MD Main Config.
-    const PATH_CONFIG = '.';
+    const CONFIG_PATH = '.';
     const CONFIG_SUFFIX = '-configMD.php';
     const CMD_TIME_LIMIT = 30;
 
@@ -120,12 +120,12 @@ class MD {
      * Get all config files.
      */
     public static function getConfigs() {
-        $files = scandir(self::PATH_CONFIG);
+        $files = scandir(self::CONFIG_PATH);
         if ($files !== false && !empty($files)) {
             foreach ($files as $file) {
                 if (strpos($file, self::CONFIG_SUFFIX) !== false) {
                     $project = str_replace(self::CONFIG_SUFFIX, '', $file);
-                    self::$configs[$project] = require(self::PATH_CONFIG . DIRECTORY_SEPARATOR . $file);
+                    self::$configs[$project] = require(self::CONFIG_PATH . DIRECTORY_SEPARATOR . $file);
 
                     //Load custom_fields defaults.
                     foreach(self::$configs[$project]["CUSTOM_FIELDS"] as $field){
