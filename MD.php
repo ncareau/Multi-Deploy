@@ -409,12 +409,13 @@ class MD {
         self::output('');
         self::output('Deploy completed !');
 
+        printf(self::HTMLPAGE_FOOTER);
+
         //Email result
         if (self::$email == true) {
             self::mailOutput();
         }
 
-        printf(self::HTMLPAGE_FOOTER);
     }
 
 }
