@@ -2,7 +2,7 @@
 
 /**
  * Multi-Deploy
- * https://github.com/ncareau/multi-php-git-deploy
+ * https://github.com/ncareau/Multi-Deploy
  * Small/Fast script that helps deploying multiple PHP applications with Git.
  *
  * MD, short for MultiDeploy, consist of a main file and a unlimited number of config files. One for each site you want to deploy.
