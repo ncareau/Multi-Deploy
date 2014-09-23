@@ -94,6 +94,13 @@ S3CMD
 Print disk space left.
 
     new MD_CMD("df -h"),
+    
+Clear cache folder.
+
+    //Place in CMDS_POST_DEPLOY
+    new MD_CMD("rm -Rf var/cache/*"),
+    new MD_CMD("rm -Rf var/twig/*"),
+    
 
 ##About
 
