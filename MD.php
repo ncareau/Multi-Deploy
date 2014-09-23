@@ -234,14 +234,12 @@ class MD {
 
         //Run composer
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            '%scomposer --no-ansi --no-interaction --no-progress --working-dir=%s install', array(
-            self::getParam("PROJECT_REMOTE", $project) ? 'COMPOSER_HOME="/tmp/composerhome" ' : '',
+            'COMPOSER_HOME="/tmp/composerhome" composer --no-ansi --no-interaction --no-progress --working-dir=%s install', array(
             $projectpath
         ), 'RUN_COMPOSER');
 
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            '%scomposer --working-dir=%s dump-autoload --optimize', array(
-            self::getParam("PROJECT_REMOTE", $project) ? 'COMPOSER_HOME="/tmp/composerhome" ' : '',
+            'COMPOSER_HOME="/tmp/composerhome" composer --working-dir=%s dump-autoload --optimize', array(
             $projectpath
         ), 'RUN_COMPOSER');
 
