@@ -18,7 +18,7 @@ class MD {
     const VERSION = "0.9.3";
 
     // MD Main Config.
-    const CONFIG_PATH = './testconfig';
+    const CONFIG_PATH = '.';
     const CONFIG_SUFFIX = '-configMD.php';
     const CMD_TIME_LIMIT = 30;
 
