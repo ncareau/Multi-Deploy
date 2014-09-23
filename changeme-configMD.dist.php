@@ -5,7 +5,7 @@
  *
  * Edit this file according to your setup configuration. Go here for more information on how to use custom Field and Commands.
  *
- * @version 0.9.2
+ * @version 0.9.3
  * @author  NMC <admin@nmc-lab.com>
  */
 return array(

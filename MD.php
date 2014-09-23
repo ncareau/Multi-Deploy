@@ -7,16 +7,18 @@
  *
  * MD, short for MultiDeploy, consist of a main file and a unlimited number of config files. One for each site you want to deploy.
  *
+ * View README for more information on configuration and utilisation.
+ *
  * @author  NMC <admin@nmc-lab.com>
  *
  */
 
 class MD {
 
-    const VERSION = "0.9.2";
+    const VERSION = "0.9.3";
 
     // MD Main Config.
-    const CONFIG_PATH = '.';
+    const CONFIG_PATH = './testconfig';
     const CONFIG_SUFFIX = '-configMD.php';
     const CMD_TIME_LIMIT = 30;
 
@@ -30,10 +32,10 @@ class MD {
 			<title>MultiDeploy</title>
 			<style>
 				body { padding: 0 1em; background: #222; color: #fff; }
-				h2, .error { color: #c33; }
-				.prompt { color: #6be234; }
-				.command { color: #729fcf; }
-				.output { color: #999; }
+				h2, .err { color: #c33; }
+				.prpt { color: #6be234; }
+				.cmd { color: #729fcf; }
+				.out { color: #999; }
 				label { display: inline-block; width: 120px; height: 25px; }
 				input[type=text] { width: 300px; }
 				.cb { vertical-align: top; } /* Checkbox Class */
@@ -263,8 +265,8 @@ class MD {
         }
 
         self::output('<form action="" method="get">');
-        self::output('<label class="prompt">Project </label> : <select name="project" value="" />' . $projectselect . '</select>');
-        self::output('<label class="prompt">Secret Token </label> : <input type="text" name="sat" value="" />');
+        self::output('<label class="prpt">Project </label> : <select name="project" value="" />' . $projectselect . '</select>');
+        self::output('<label class="prpt">Secret Token </label> : <input type="text" name="sat" value="" />');
         self::output('<input type="submit" value="Next" />');
         self::output('</form>');
 
@@ -275,7 +277,7 @@ class MD {
     public static function step2()
     {
 
-        self::output("<label class=\"prompt\">Multi Deploy </label>  Version  " . self::VERSION);
+        self::output("<label class=\"prpt\">Multi Deploy </label>  Version  " . self::VERSION);
         self::output('<form action="" method="post">');
 
         //Calculate all project to deploy.
@@ -287,10 +289,10 @@ class MD {
         //List each projects with their respective fields.
         foreach ($project_array as $project) {
             self::output('<fieldset><legend>' . self::getParam("PROJECT_NAME", $project) . '</legend>');
-            self::output('<label class="prompt">Branch </label> : <input type="text" name="'.$project.'_PROJECT_BRANCH" value="' . self::getParam("PROJECT_BRANCH", $project) . '" />');
-            self::output('<label class="prompt">Destination </label> : <input type="text" name="'.$project.'_PROJECT_PATH" value="' . self::getParam("PROJECT_PATH", $project) . '" />');
-            self::output('<label class="prompt">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />');
-            self::output('<label class="prompt">Update SubModule </label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_UPDATE_SUBMODULE" ' . (self::getCheckbox("UPDATE_SUBMODULE", $project) ? "checked" : "") . ' />');
+            self::output('<label class="prpt">Branch </label> : <input type="text" name="'.$project.'_PROJECT_BRANCH" value="' . self::getParam("PROJECT_BRANCH", $project) . '" />');
+            self::output('<label class="prpt">Destination </label> : <input type="text" name="'.$project.'_PROJECT_PATH" value="' . self::getParam("PROJECT_PATH", $project) . '" />');
+            self::output('<label class="prpt">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />');
+            self::output('<label class="prpt">Update SubModule </label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_UPDATE_SUBMODULE" ' . (self::getCheckbox("UPDATE_SUBMODULE", $project) ? "checked" : "") . ' />');
             self::output('Customs:');
 
             foreach(self::getParam("CUSTOM_FIELDS", $project) as $field){
@@ -302,8 +304,8 @@ class MD {
         }
 
         self::output('');
-        self::output('<label class="prompt">Send Emails </label> : <input type="checkbox" value="true" class="cb" onclick="document.getElementById(\'emailBox\').disabled=!this.checked;" name="'.self::$project.'_EMAIL_SEND" ' . (self::getCheckbox("EMAIL_SEND", self::$project) == true ? "checked" : "") . ' /> ');
-        self::output('<label class="prompt">Emails </label> :<br/> <textarea name="'.self::$project.'_EMAIL_ADDRESS" id="emailBox" rows="4" cols="25" ' . (self::getCheckbox("EMAIL_SEND", self::$project) ? '' : 'disabled') . ' >' . self::getParam("EMAIL_ADDRESS") . '</textarea>');
+        self::output('<label class="prpt">Send Emails </label> : <input type="checkbox" value="true" class="cb" onclick="document.getElementById(\'emailBox\').disabled=!this.checked;" name="'.self::$project.'_EMAIL_SEND" ' . (self::getCheckbox("EMAIL_SEND", self::$project) == true ? "checked" : "") . ' /> ');
+        self::output('<label class="prpt">Emails </label> :<br/> <textarea name="'.self::$project.'_EMAIL_ADDRESS" id="emailBox" rows="4" cols="25" ' . (self::getCheckbox("EMAIL_SEND", self::$project) ? '' : 'disabled') . ' >' . self::getParam("EMAIL_ADDRESS") . '</textarea>');
         self::output('');
         self::output('<input type="submit" value="deploy" />');
         self::output('<input type="hidden" name="deploy" value="true" />');
@@ -354,19 +356,19 @@ class MD {
                             $run = $cmd->get();
                             set_time_limit(MD::CMD_TIME_LIMIT); // Reset the time limit for each command
 
-                            self::output(sprintf('<span class="prompt">$</span> <span class="command">%s</span>'
+                            self::output(sprintf('<span class="prpt">$</span> <span class="cmd">%s</span>'
                                 , htmlentities(trim($run))));
 
                             $tmp = array();
                             exec($run . ' 2>&1', $tmp, $return_code); // Execute the command
                             // Output the result
-                            self::output(sprintf('<div class="output">%s</div>'
+                            self::output(sprintf('<div class="out">%s</div>'
                                 , htmlentities(trim(implode("\n", $tmp)))));
 
 
                             // Error handling and cleanup
                             if ($return_code !== 0) {
-                                self::output(sprintf('<div class="error">
+                                self::output(sprintf('<div class="err">
                                     Error encountered!
                                     Stopping the script to prevent possible data loss.
                                     CHECK THE DATA IN YOUR TARGET DIR!
@@ -385,7 +387,7 @@ class MD {
                                             $tmp = array();
                                             exec($run . ' 2>&1', $tmp, $return_code); // Execute the command
                                             // Output the result
-                                            self::output(sprintf('<span class="prompt">$</span> <span class="command">%s</span> <div class="output">%s</div>'
+                                            self::output(sprintf('<span class="prpt">$</span> <span class="cmd">%s</span> <div class="out">%s</div>'
                                                 , htmlentities(trim($run))
                                                 , htmlentities(trim(implode("\n", $tmp)))));
 
@@ -406,8 +408,10 @@ class MD {
             }
         }
 
-        self::output('');
-        self::output('Deploy completed !');
+        if(self::$state == "SUCCESS") {
+            self::output('');
+            self::output('<span class="prpt">Deployment succeeded !</span>');
+        }
 
         printf(self::HTMLPAGE_FOOTER);
 
@@ -436,7 +440,7 @@ class MD_CMD {
      * @param $params
      * @param null $run_checkbox
      */
-    public function __Construct($cmd, $params, $run_checkbox = null){
+    public function __Construct($cmd, $params = array(), $run_checkbox = null){
         $this->cmd = $cmd;
         $this->params = $params;
         $this->run_checkbox = $run_checkbox;
@@ -510,9 +514,9 @@ class MD_FIELD {
 
         switch($this->type) {
             case self::TYPE_CHECKBOX:
-                return '<label class="prompt">'.$this->label.'</label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_'.$this->name.'" ' . (MD::getCheckbox($this->name, $project) ? "checked" : "") . ' />';
+                return '<label class="prpt">'.$this->label.'</label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_'.$this->name.'" ' . (MD::getCheckbox($this->name, $project) ? "checked" : "") . ' />';
             case self::TYPE_TEXTFIELD:
-                return '<label class="prompt">'.$this->label.'</label> : <input type="text" name="'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
+                return '<label class="prpt">'.$this->label.'</label> : <input type="text" name="'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
         }
 
     }
