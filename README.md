@@ -97,7 +97,7 @@ S3CMD Backup all Files
     new MD_FIELD('S3CMD_BACKUP', 'S3 Backup?', $type = MD_FIELD::TYPE_CHECKBOX, $default = true),
     
     //Place in "CMDS_PRE_DEPLOY"
-    ne MD_CMD("s3cmd put -r %s/ s3://%s/${date +%y%m%d}/", array(
+    new MD_CMD("s3cmd put -r %s/ s3://%s/${date +%y%m%d}/", array(
         '{PROJECT_PATH}',
         '{S3_CONTAINER}'
         '{S3_PATH}'
