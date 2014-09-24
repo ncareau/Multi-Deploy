@@ -41,11 +41,11 @@ return array(
 
     //EMAIL_SEND - should the app send emails to the following with the results of the deployment.
     "EMAIL_SEND" => false,
-    //EMAIL_DEFAULT - List of the user that should receive an email about the state of deployment. Each email must be on a different line. (\n)
-    "EMAIL_ADDRESS" => "ncareau@som.ca\nncareau@som.ca",
+    //EMAIL_DEFAULT - List of the user that should receive an email about the state of deployment. Each email must be on a different line, use "\n" for delimitation.
+    "EMAIL_ADDRESS" => "admin@nmc-lab.com\nadmin@nmc-lab.com",
 
     //RUN_AFTER - Array of script to deploy after this one.
-    "RUN_AFTER" => array('test2'),
+    "RUN_AFTER" => array(),
 
 
     /************************************
@@ -55,8 +55,11 @@ return array(
      */
 
     "CUSTOM_FIELDS" => array(
-        new MD_FIELD("TEST_CHECK", "Test Checkbox", MD_FIELD::TYPE_CHECKBOX, false),
-        new MD_FIELD("TEST_FIELD", "Test textfield", MD_FIELD::TYPE_TEXTFIELD, "test")
+        new MD_FIELD('MYSQL_BACKUP', 'Backup Mysql?', $type = MD_FIELD::TYPE_CHECKBOX, $default = true),
+        new MD_FIELD('MYSQL_USER', 'Mysql User', $type = MD_FIELD::TYPE_TEXTFIELD, $default = 'root'),
+        new MD_FIELD('MYSQL_PASS', 'Mysql Pass', $type = MD_FIELD::TYPE_PASSFIELD, $default = ''),
+        new MD_FIELD('MYSQL_DBNAME', 'Mysql DB name', $type = MD_FIELD::TYPE_TEXTFIELD, $default = 'my_db_name'),
+        new MD_FIELD('MYSQL_FILE', 'Mysql backup file', $type = MD_FIELD::TYPE_TEXTFIELD, $default = 'path/to/backup'),
     ),
 
     /************************************
@@ -67,10 +70,12 @@ return array(
      */
 
     "CMDS_PRE_DEPLOY" => array(
-        new MD_CMD('/path/to/bin/backupBD.sh', array()),
-        new MD_CMD('/path/to/bin/pradomode.sh -d -f %s',array(
-            '%PROJECT_PATH%/protected/application.php'
-        ))
+        new MD_CMD("mysqldump -u%s -p%s %s > %s", array(
+            '{MYSQL_USER}',
+            '{MYSQL_PASS}',
+            '{MYSQL_DBNAME}',
+            '{MYSQL_FILE}',
+        ), 'MYSQL_BACKUP'),
     ),
     "CMDS_DEPLOY" => array(
 

@@ -15,12 +15,21 @@
 
 class MD {
 
-    const VERSION = "0.9.3";
+    const VERSION = "0.9.4";
 
     // MD Main Config.
     const CONFIG_PATH = '.';
     const CONFIG_SUFFIX = '-configMD.php';
     const CMD_TIME_LIMIT = 30;
+    const SHOW_STEP1 = true;
+    const SHOW_STEP2 = true;
+    const LOCALE = 'en_US.UTF-8';
+    const IP_WHITELIST = false;
+
+    private static $ip = array(
+        '127.0.0.1',
+        '192.168.1.110'
+    );
 
     // Main HTML Template for Email and HTTP.
     const HTMLPAGE_HEADER = "
@@ -37,7 +46,7 @@ class MD {
 				.cmd { color: #729fcf; }
 				.out { color: #999; }
 				label { display: inline-block; width: 120px; height: 25px; }
-				input[type=text] { width: 300px; }
+				input[type=text], input[type=password] { width: 300px; }
 				.cb { vertical-align: top; } /* Checkbox Class */
 			</style>
 		</head>
@@ -62,6 +71,7 @@ class MD {
     private static $output = array(); //Output buffer.
     private static $queue = array(); //Command Queue MD_CMD[projectname][stage][]
     private static $obfuscate = array(); //Contain an array of string to obfuscate in the output (for passwords and token)
+    public static $obfuscate_fields = array();
 
     private static $direct_output = false;
 
@@ -81,16 +91,28 @@ class MD {
      * Step 3: Deployment
      */
     public static function start() {
+        //Set application Locale.
+        setlocale(LC_ALL, MD::LOCALE);
+        putenv('LC_ALL='.MD::LOCALE);
+
+        //Check IP Whitelist
+        if (!in_array($_SERVER['REMOTE_ADDR'], self::$ip) && self::IP_WHITELIST) {
+            self::$output[] = '<h2>ACCESS DENIED!</h2>';
+            self::exitHTML();
+        }
+
+        //Get credentials.
         self::$project = filter_input(INPUT_GET, 'project');
         self::$sat = filter_input(INPUT_GET, 'sat');
 
+        //Get all configs.
         self::getConfigs();
 
         if (self::$project && self::$sat) {
             if (isset(self::$configs[self::$project])) {
                 if (self::$sat === self::$configs[self::$project]["SECRET_ACCESS_TOKEN"]) {
                     if (filter_input(INPUT_POST, 'deploy') === 'true' || filter_input(INPUT_GET, 'deploy') === 'true') {
-                        //Show Step 3 - Deployment
+                        //Show Step 3 - Deployment.
                         if (self::getParam('EMAIL_SEND') === 'true' && self::getParam('EMAIL_SEND') !== '1') {
                             self::$email = true;
                             self::$email_subject = self::getParam('PROJECT_NAME');
@@ -101,8 +123,13 @@ class MD {
 
                         self::step3();
                     } else {
-                        //Show Step 2 - Deploy Configuration
-                        self::step2();
+                        //Show Step 2 - Deploy Configuration.
+                        if(MD::SHOW_STEP2) {
+                            self::step2();
+                        }else{
+                            self::$output[] = '<h2>ACCESS DENIED!</h2>';
+                            self::exitHTML();
+                        }
                     }
                 } else {
                     self::$output[] = '<h2>ACCESS DENIED!</h2>';
@@ -113,8 +140,13 @@ class MD {
                 self::exitHTML();
             }
         } else {
-            //Show Step 1 - Project Login
-            self::step1();
+            //Show Step 1 - Project Login.
+            if(MD::SHOW_STEP1) {
+                self::step1();
+            }else{
+                self::$output[] = '<h2>ACCESS DENIED!</h2>';
+                self::exitHTML();
+            }
         }
     }
 
@@ -179,10 +211,16 @@ class MD {
         }
 
         if (isset($_POST[$project.'_'.$name])) {
-            return $_POST[$project.'_'.$name];
+            $value = $_POST[$project.'_'.$name];
         } elseif (isset(self::$configs[$project][$name])) {
-            return self::$configs[$project][$name];
+            $value = self::$configs[$project][$name];
         }
+
+        if(in_array($name,self::$obfuscate_fields)){
+          self::$obfuscate[] = $value;
+        }
+
+        return $value;
     }
 
     public static function getCheckbox($name, $project = null) {
@@ -286,19 +324,23 @@ class MD {
 
         //List each projects with their respective fields.
         foreach ($project_array as $project) {
-            self::output('<fieldset><legend>' . self::getParam("PROJECT_NAME", $project) . '</legend>');
-            self::output('<label class="prpt">Branch </label> : <input type="text" name="'.$project.'_PROJECT_BRANCH" value="' . self::getParam("PROJECT_BRANCH", $project) . '" />');
-            self::output('<label class="prpt">Destination </label> : <input type="text" name="'.$project.'_PROJECT_PATH" value="' . self::getParam("PROJECT_PATH", $project) . '" />');
-            self::output('<label class="prpt">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />');
-            self::output('<label class="prpt">Update SubModule </label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_UPDATE_SUBMODULE" ' . (self::getCheckbox("UPDATE_SUBMODULE", $project) ? "checked" : "") . ' />');
-            self::output('Customs:');
+            $project_name = self::getParam("PROJECT_NAME", $project);
+            if (!empty($project_name)) {
 
-            foreach(self::getParam("CUSTOM_FIELDS", $project) as $field){
-                self::output($field->get($project));
+                self::output('<fieldset><legend>' . $project_name . '</legend>');
+                self::output('<label class="prpt">Branch </label> : <input type="text" name="' . $project . '_PROJECT_BRANCH" value="' . self::getParam("PROJECT_BRANCH", $project) . '" />');
+                self::output('<label class="prpt">Destination </label> : <input type="text" name="' . $project . '_PROJECT_PATH" value="' . self::getParam("PROJECT_PATH", $project) . '" />');
+                self::output('<label class="prpt">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />');
+                self::output('<label class="prpt">Update SubModule </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_UPDATE_SUBMODULE" ' . (self::getCheckbox("UPDATE_SUBMODULE", $project) ? "checked" : "") . ' />');
+                self::output('Customs:');
+
+                foreach (self::getParam("CUSTOM_FIELDS", $project) as $field) {
+                    self::output($field->get($project));
+                }
+
+                self::output('</fieldset>');
+                self::output('');
             }
-
-            self::output('</fieldset>');
-            self::output('');
         }
 
         self::output('');
@@ -314,6 +356,7 @@ class MD {
 
     //Step 3 - Deploy Action
     public static function step3($exit = true) {
+
         //Direct output mode.
         ob_implicit_flush();
         self::$direct_output = true;
@@ -330,7 +373,10 @@ class MD {
         self::buildQueue(self::$project);
         if (count(self::getParam('RUN_AFTER', self::$project)) > 0) {
             foreach(self::getParam('RUN_AFTER', self::$project) as $project){
-                self::buildQueue($project);
+                $project_name = self::getParam("PROJECT_NAME", $project);
+                if (!empty($project_name)) {
+                    self::buildQueue($project);
+                }
             }
         }
 
@@ -355,13 +401,15 @@ class MD {
                             set_time_limit(MD::CMD_TIME_LIMIT); // Reset the time limit for each command
 
                             self::output(sprintf('<span class="prpt">$</span> <span class="cmd">%s</span>'
-                                , htmlentities(trim($run))));
+                                , htmlentities(trim($run), ENT_QUOTES, "UTF-8")
+                            ));
 
                             $tmp = array();
                             exec($run . ' 2>&1', $tmp, $return_code); // Execute the command
                             // Output the result
                             self::output(sprintf('<div class="out">%s</div>'
-                                , htmlentities(trim(implode("\n", $tmp)))));
+                                , htmlentities(trim(implode("\n", $tmp)), ENT_QUOTES, "UTF-8")
+                            ));
 
 
                             // Error handling and cleanup
@@ -386,8 +434,9 @@ class MD {
                                             exec($run . ' 2>&1', $tmp, $return_code); // Execute the command
                                             // Output the result
                                             self::output(sprintf('<span class="prpt">$</span> <span class="cmd">%s</span> <div class="out">%s</div>'
-                                                , htmlentities(trim($run))
-                                                , htmlentities(trim(implode("\n", $tmp)))));
+                                                , htmlentities(trim($run), ENT_QUOTES, "UTF-8")
+                                                , htmlentities(trim(implode("\n", $tmp)), ENT_QUOTES, "UTF-8")
+                                            ));
 
                                             if ($return_code !== 0) {
                                                 break;
@@ -493,6 +542,7 @@ class MD_FIELD {
 
     const TYPE_CHECKBOX = 1;
     const TYPE_TEXTFIELD = 2;
+    const TYPE_PASSFIELD = 3;
 
     public $name;
     public $label;
@@ -505,6 +555,10 @@ class MD_FIELD {
         $this->label = $label;
         $this->type = $type;
         $this->default = $default;
+
+        if($type == MD_FIELD::TYPE_PASSFIELD){
+            MD::$obfuscate_fields[] = $name;
+        }
     }
 
     public function get($project){
@@ -515,6 +569,8 @@ class MD_FIELD {
                 return '<label class="prpt">'.$this->label.'</label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_'.$this->name.'" ' . (MD::getCheckbox($this->name, $project) ? "checked" : "") . ' />';
             case self::TYPE_TEXTFIELD:
                 return '<label class="prpt">'.$this->label.'</label> : <input type="text" name="'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
+            case self::TYPE_PASSFIELD:
+                return '<label class="prpt">'.$this->label.'</label> : <input type="password" name="'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
         }
 
     }

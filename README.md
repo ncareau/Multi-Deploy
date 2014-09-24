@@ -28,6 +28,10 @@ These config are located in the header section of the MD.php file. Changing thes
 * `CONFIG_SUFFIX` The suffix that the script use to find config file.
 * `CMD_TIME_LIMIT` Max exec time for each command runned.
 * `SHOW_STEP1` Will return access error when trying to log without any credentials. 
+* `SHOW_STEP2`
+* `LOCALE`
+* `IP_WHITELIST`
+* `ip`
 
 ###MD project Config
 
@@ -79,17 +83,26 @@ MYSQL_DUMP
     new MD_FIELD('MYSQL_FILE', 'Mysql backup file', $type = MD_FIELD::TYPE_TEXTFIELD, $default = 'path/to/backup'),
 
     //Place in "CMDS_PRE_DEPLOY"
-    new MD_CMD("mysqldump –u%s –p%s %s > %s", array(
-        'MYSQL_USER',
-        'MYSQL_PASS',
-        'MYSQL_DBNAME',
-        'MYSQL_FILE',
+    new MD_CMD("mysqldump -u%s -p%s %s > %s", array(
+        '{MYSQL_USER}',
+        '{MYSQL_PASS}',
+        '{MYSQL_DBNAME}',
+        '{MYSQL_FILE}',
     ), 'MYSQL_BACKUP'),
 
 
-S3CMD 
+S3CMD Backup all Files
 
-    //todo
+    //Place in the "CUSTOM_FIELDS"
+    new MD_FIELD('S3CMD_BACKUP', 'S3 Backup?', $type = MD_FIELD::TYPE_CHECKBOX, $default = true),
+    
+    //Place in "CMDS_PRE_DEPLOY"
+    ne MD_CMD("s3cmd put -r %s/ s3://%s/${date +%y%m%d}/", array(
+        '{PROJECT_PATH}',
+        '{S3_CONTAINER}'
+        '{S3_PATH}'
+    ),'S3CMD_BACKUP'),
+    
     
 Print disk space left.
 

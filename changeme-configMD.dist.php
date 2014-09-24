@@ -41,8 +41,8 @@ return array(
 
     //EMAIL_SEND - should the app send emails to the following with the results of the deployment.
     "EMAIL_SEND" => false,
-    //EMAIL_DEFAULT - List of the user that should receive an email about the state of deployment. Each email must be on a different line. (\n)
-    "EMAIL_ADDRESS" => "ncareau@som.ca\nncareau@som.ca",
+    //EMAIL_DEFAULT - List of the user that should receive an email about the state of deployment. Each email must be on a different line, use "\n" for delimitation.
+    "EMAIL_ADDRESS" => "admin@nmc-lab.com\nadmin@nmc-lab.com",
 
     //RUN_AFTER - Array of script to deploy after this one.
     "RUN_AFTER" => array('test2'),
