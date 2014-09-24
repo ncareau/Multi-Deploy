@@ -5,16 +5,16 @@
  *
  * Edit this file according to your setup configuration. Go here for more information on how to use custom Field and Commands.
  *
- * @version 0.9.3
+ * @version 0.9.5
  * @author  NMC <admin@nmc-lab.com>
  */
 return array(
 
-    //SECRET_ACCESS_TOKEN - Secret token or password that is used to deploy the application.
-    "SECRET_ACCESS_TOKEN" => "ChangeMe-Changezmoi",
-
     //PROJECT_NAME - Project name for
     "PROJECT_NAME" => "TEST-NAME",
+    
+    //SECRET_ACCESS_TOKEN - Secret token or password that is used to deploy the application.
+    "SECRET_ACCESS_TOKEN" => "ChangeMe-Changezmoi",
 
     //PROJECT_PATH - Path of the project which should also contains the git project (.git folder)
     "PROJECT_PATH" => "/path/to/project",
@@ -40,12 +40,12 @@ return array(
     "PROJECT_REMOTE_RUNAS" => "",
 
     //EMAIL_SEND - should the app send emails to the following with the results of the deployment.
-    "EMAIL_SEND" => false,
+    "EMAIL_SEND" => true,
     //EMAIL_DEFAULT - List of the user that should receive an email about the state of deployment. Each email must be on a different line, use "\n" for delimitation.
     "EMAIL_ADDRESS" => "admin@nmc-lab.com\nadmin@nmc-lab.com",
 
     //RUN_AFTER - Array of script to deploy after this one.
-    "RUN_AFTER" => array('test2'),
+    "RUN_AFTER" => array(),
 
 
     /************************************

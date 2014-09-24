@@ -8,5 +8,10 @@ testdeploy
 testrepo
 testconfig
 
-#Do not track files in the config directory.
+#Do not track config files.
+#Remove this line if you want to fork and include configuration files.
 config
+*-configMD.php
+
+#This folder is used to store SSH keys
+ssh

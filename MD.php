@@ -15,7 +15,7 @@
 
 class MD {
 
-    const VERSION = "0.9.4";
+    const VERSION = "0.9.5";
 
     // MD Main Config.
     const CONFIG_PATH = '.';
@@ -302,7 +302,7 @@ class MD {
 
         self::output('<form action="" method="get">');
         self::output('<label class="prpt">Project </label> : <select name="project" value="" />' . $projectselect . '</select>');
-        self::output('<label class="prpt">Secret Token </label> : <input type="text" name="sat" value="" />');
+        self::output('<label class="prpt">Secret Token </label> : <input type="password" name="sat" value="" />');
         self::output('<input type="submit" value="Next" />');
         self::output('</form>');
 
