@@ -15,7 +15,7 @@
 
 class MD {
 
-    const VERSION = "0.9.5";
+    const VERSION = "0.9.6";
 
     // MD Main Config.
     const CONFIG_PATH = '.';
@@ -113,7 +113,7 @@ class MD {
                 if (self::$sat === self::$configs[self::$project]["SECRET_ACCESS_TOKEN"]) {
                     if (filter_input(INPUT_POST, 'deploy') === 'true' || filter_input(INPUT_GET, 'deploy') === 'true') {
                         //Show Step 3 - Deployment.
-                        if (self::getParam('EMAIL_SEND') === 'true' && self::getParam('EMAIL_SEND') !== '1') {
+                        if (self::getCheckbox('EMAIL_SEND')) {
                             self::$email = true;
                             self::$email_subject = self::getParam('PROJECT_NAME');
                             self::$email_addresses = self::getParam('EMAIL_ADDRESS');
@@ -159,6 +159,7 @@ class MD {
             foreach ($files as $file) {
                 if (strpos($file, self::CONFIG_SUFFIX) !== false) {
                     $project = str_replace(self::CONFIG_SUFFIX, '', $file);
+                    
                     self::$configs[$project] = require(self::CONFIG_PATH . DIRECTORY_SEPARATOR . $file);
 
                     //Load custom_fields defaults.
@@ -216,7 +217,7 @@ class MD {
             $value = self::$configs[$project][$name];
         }
 
-        if(in_array($name,self::$obfuscate_fields)){
+        if(in_array($name, self::$obfuscate_fields)){
           self::$obfuscate[] = $value;
         }
 
@@ -447,7 +448,7 @@ class MD {
 
                                 self::$state = "FAIL";
 
-                                break 2;
+                                break 3;
                             }
                         }
                     }
@@ -458,6 +459,9 @@ class MD {
         if(self::$state == "SUCCESS") {
             self::output('');
             self::output('<span class="prpt">Deployment succeeded !</span>');
+        }else{
+            self::output('');
+            self::output('<span class="err">Deployment failed !</span>'); 
         }
 
         printf(self::HTMLPAGE_FOOTER);
@@ -508,12 +512,12 @@ class MD_CMD {
 
         //Check for remote command.
         if(MD::getParam('PROJECT_REMOTE', $this->project)){
-            $runas = self::getParam("PROJECT_REMOTE_RUNAS", $this->project);
+            $runas = MD::getParam("PROJECT_REMOTE_RUNAS", $this->project);
             $remotecmd = sprintf("ssh -i %s %s@%s \"%s%s\""
-                , self::getParam("PROJECT_REMOTE_KEYFILE", $this->project)
-                , self::getParam("PROJECT_REMOTE_USER", $this->project)
-                , self::getParam("PROJECT_REMOTE_HOST", $this->project)
-                , empty($runas) ? '' : 'sudo -Hu '.self::getParam("PROJECT_REMOTE_RUNAS", $this->$project).' '
+                , MD::getParam("PROJECT_REMOTE_KEYFILE", $this->project)
+                , MD::getParam("PROJECT_REMOTE_USER", $this->project)
+                , MD::getParam("PROJECT_REMOTE_HOST", $this->project)
+                , empty($runas) ? '' : 'sudo -Hu '.MD::getParam("PROJECT_REMOTE_RUNAS", $this->project).' '
                 , $cmd);
             return $remotecmd;
         }else{
