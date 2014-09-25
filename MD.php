@@ -15,7 +15,7 @@
 
 class MD {
 
-    const VERSION = "0.9.6";
+    const VERSION = "0.9.7";
 
     // MD Main Config.
     const CONFIG_PATH = '.';
@@ -211,8 +211,9 @@ class MD {
             $project = self::$project;
         }
 
-        if (isset($_POST[$project.'_'.$name])) {
-            $value = $_POST[$project.'_'.$name];
+        $varName = str_replace(array('.',' ','['), '_',$project).'_'.$name;
+        if (isset($_POST[$varName])) {
+            $value = $_POST[$varName];
         } elseif (isset(self::$configs[$project][$name])) {
             $value = self::$configs[$project][$name];
         }
@@ -232,8 +233,9 @@ class MD {
         if (empty($_POST)) {
             return self::$configs[$project][$name];
         } else {
-            if (isset($_POST[$project.'_'.$name])) {
-                if($_POST[$project.'_'.$name] == 'true'){
+            $varName = str_replace(array('.',' ','['), '_',$project).'_'.$name;
+            if (isset($_POST[$varName])) {
+                if($_POST[$varName] == 'true'){
                     return true;
                 }
             }
@@ -249,27 +251,32 @@ class MD {
         self::$queue[$project][MD::PRE_DEPLOY] = self::getParam('CMDS_PRE_DEPLOY', $project);
 
         self::$queue[$project][MD::PRE_DEPLOY][] = new MD_CMD(
-            'git fetch origin', array(
+            'git --work-tree="%s" --git-dir="%s/.git" fetch origin', array(
             $projectpath,
-            $projectpath
+            $projectpath,
         ));
 
         //DEPLOY
         self::$queue[$project][MD::DEPLOY] = self::getParam('CMDS_DEPLOY', $project);
 
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            'git reset --hard', array(
+            'git --work-tree="%s" --git-dir="%s/.git" reset --hard', array(
             $projectpath,
-            $projectpath
+            $projectpath,
         ));
 
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            'git checkout origin/%s', array(
+            'git --work-tree="%s" --git-dir="%s/.git" checkout origin/%s', array(
+            $projectpath,
+            $projectpath,
             self::getParam('PROJECT_BRANCH', $project)
         ));
 
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            'git submodule update --init --recursive', array(), 'UPDATE_SUBMODULE');
+            'git --work-tree="%s" --git-dir="%s/.git" submodule update --init --recursive', array(
+            $projectpath,
+            $projectpath,
+        ), 'UPDATE_SUBMODULE');
 
         //Run composer
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
@@ -429,7 +436,7 @@ class MD {
                                 if(isset($cmds[MD::ON_FAIL])) {
                                     foreach ($cmds[MD::ON_FAIL] as $cmd){
                                         if($cmd->check_run($project)){
-                                            $run = $cmd->run();
+                                            $run = $cmd->get();
                                             set_time_limit(MD::CMD_TIME_LIMIT); // Reset the time limit for each command
                                             $tmp = array();
                                             exec($run . ' 2>&1', $tmp, $return_code); // Execute the command
