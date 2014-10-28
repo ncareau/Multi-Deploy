@@ -27,6 +27,8 @@ return array(
 
     //RUN_COMPOSER - Should the app run "composer install && optimize". 
     "RUN_COMPOSER" => true,
+    //RUN_COMPOSER_NO_DEV - Should composer be install dev-only stuff. 
+    "RUN_COMPOSER_NO_DEV" => true,
 
     //PROJECT_REMOTE - Is the server on a remote server. SSH?
     "PROJECT_REMOTE" => false,

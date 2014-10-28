@@ -12,13 +12,12 @@
  * @author  NMC <admin@nmc-lab.com>
  *
  */
-
 class MD {
 
-    const VERSION = "0.9.7";
+    const VERSION = "0.9.8";
 
     // MD Main Config.
-    const CONFIG_PATH = '.';
+    const CONFIG_PATH = './';
     const CONFIG_SUFFIX = '-configMD.php';
     const CMD_TIME_LIMIT = 30;
     const SHOW_STEP1 = true;
@@ -280,8 +279,9 @@ class MD {
 
         //Run composer
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            'COMPOSER_HOME="/tmp/composerhome" composer --no-ansi --no-interaction --no-progress --working-dir=%s install', array(
-            $projectpath
+            'COMPOSER_HOME="/tmp/composerhome" composer --no-ansi --no-interaction --no-progress --working-dir=%s %s install', array(
+            $projectpath,
+            self::getCheckbox('RUN_COMPOSER_NO_DEV', $project) ? '--no-dev' : ''
         ), 'RUN_COMPOSER');
 
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
@@ -338,7 +338,7 @@ class MD {
                 self::output('<fieldset><legend>' . $project_name . '</legend>');
                 self::output('<label class="prpt">Branch </label> : <input type="text" name="' . $project . '_PROJECT_BRANCH" value="' . self::getParam("PROJECT_BRANCH", $project) . '" />');
                 self::output('<label class="prpt">Destination </label> : <input type="text" name="' . $project . '_PROJECT_PATH" value="' . self::getParam("PROJECT_PATH", $project) . '" />');
-                self::output('<label class="prpt">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />');
+                self::output('<label class="prpt">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />   <label class="prpt"> Composer No-Dev </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER_NO_DEV" ' . (self::getCheckbox("RUN_COMPOSER_NO_DEV", $project) ? "checked" : "") . ' />');
                 self::output('<label class="prpt">Update SubModule </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_UPDATE_SUBMODULE" ' . (self::getCheckbox("UPDATE_SUBMODULE", $project) ? "checked" : "") . ' />');
                 self::output('Customs:');
 
@@ -353,7 +353,7 @@ class MD {
 
         self::output('');
         self::output('<label class="prpt">Send Emails </label> : <input type="checkbox" value="true" class="cb" onclick="document.getElementById(\'emailBox\').disabled=!this.checked;" name="'.self::$project.'_EMAIL_SEND" ' . (self::getCheckbox("EMAIL_SEND", self::$project) == true ? "checked" : "") . ' /> ');
-        self::output('<label class="prpt">Emails </label> :<br/> <textarea name="'.self::$project.'_EMAIL_ADDRESS" id="emailBox" rows="4" cols="25" ' . (self::getCheckbox("EMAIL_SEND", self::$project) ? '' : 'disabled') . ' >' . self::getParam("EMAIL_ADDRESS") . '</textarea>');
+        self::output('<label class="prpt" for="emailBox">Emails </label> :<br/> <textarea id="emailBox" name="'.self::$project.'_EMAIL_ADDRESS" rows="4" cols="25" ' . (self::getCheckbox("EMAIL_SEND", self::$project) ? '' : 'disabled') . ' >' . self::getParam("EMAIL_ADDRESS") . '</textarea>');
         self::output('');
         self::output('<input type="submit" value="deploy" />');
         self::output('<input type="hidden" name="deploy" value="true" />');
