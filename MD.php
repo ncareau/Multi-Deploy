@@ -14,7 +14,7 @@
  */
 class MD {
 
-    const VERSION = "0.9.8";
+    const VERSION = "0.9.8b";
 
     // MD Main Config.
     const CONFIG_PATH = './';
@@ -309,8 +309,8 @@ class MD {
         }
 
         self::output('<form action="" method="get">');
-        self::output('<label class="prpt">Project </label> : <select name="project" value="" />' . $projectselect . '</select>');
-        self::output('<label class="prpt">Secret Token </label> : <input type="password" name="sat" value="" />');
+        self::output('<label class="prpt" for="project">Project </label> : <select name="project" id="project" value="" />' . $projectselect . '</select>');
+        self::output('<label class="prpt" for="sat">Secret Token </label> : <input type="password" name="sat" id="sat" value="" />');
         self::output('<input type="submit" value="Next" />');
         self::output('</form>');
 
@@ -321,7 +321,7 @@ class MD {
     public static function step2()
     {
 
-        self::output("<label class=\"prpt\">Multi Deploy </label>  Version  " . self::VERSION);
+        self::output('<label class="prpt">Multi Deploy </label>  Version  ' . self::VERSION);
         self::output('<form action="" method="post">');
 
         //Calculate all project to deploy.
@@ -336,10 +336,10 @@ class MD {
             if (!empty($project_name)) {
 
                 self::output('<fieldset><legend>' . $project_name . '</legend>');
-                self::output('<label class="prpt">Branch </label> : <input type="text" name="' . $project . '_PROJECT_BRANCH" value="' . self::getParam("PROJECT_BRANCH", $project) . '" />');
-                self::output('<label class="prpt">Destination </label> : <input type="text" name="' . $project . '_PROJECT_PATH" value="' . self::getParam("PROJECT_PATH", $project) . '" />');
-                self::output('<label class="prpt">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />   <label class="prpt"> Composer No-Dev </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER_NO_DEV" ' . (self::getCheckbox("RUN_COMPOSER_NO_DEV", $project) ? "checked" : "") . ' />');
-                self::output('<label class="prpt">Update SubModule </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_UPDATE_SUBMODULE" ' . (self::getCheckbox("UPDATE_SUBMODULE", $project) ? "checked" : "") . ' />');
+                self::output('<label class="prpt" for="input_' . $project . '_PROJECT_BRANCH">Branch </label> : <input type="text" name="' . $project . '_PROJECT_BRANCH" id="input_' . $project . '_PROJECT_BRANCH" value="' . self::getParam("PROJECT_BRANCH", $project) . '" />');
+                self::output('<label class="prpt" for="input_' . $project . '_PROJECT_PATH">Destination </label> : <input type="text" name="' . $project . '_PROJECT_PATH" id="input_' . $project . '_PROJECT_PATH" value="' . self::getParam("PROJECT_PATH", $project) . '" />');
+                self::output('<label class="prpt" for="input_' . $project . '_RUN_COMPOSER">Run Composer </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER" id="input_' . $project . '_RUN_COMPOSER" ' . (self::getCheckbox("RUN_COMPOSER", $project) ? "checked" : "") . ' />   <label class="prpt" for="input_' . $project . '_RUN_COMPOSER_NO_DEV"> Composer No-Dev </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_RUN_COMPOSER_NO_DEV" id="input_' . $project . '_RUN_COMPOSER_NO_DEV" ' . (self::getCheckbox("RUN_COMPOSER_NO_DEV", $project) ? "checked" : "") . ' />');
+                self::output('<label class="prpt" for="input_' . $project . '_UPDATE_SUBMODULE">Update SubModule </label> : <input type="checkbox" value="true" class="cb" name="' . $project . '_UPDATE_SUBMODULE" id="input_' . $project . '_UPDATE_SUBMODULE"' . (self::getCheckbox("UPDATE_SUBMODULE", $project) ? "checked" : "") . ' />');
                 self::output('Customs:');
 
                 foreach (self::getParam("CUSTOM_FIELDS", $project) as $field) {
@@ -352,7 +352,7 @@ class MD {
         }
 
         self::output('');
-        self::output('<label class="prpt">Send Emails </label> : <input type="checkbox" value="true" class="cb" onclick="document.getElementById(\'emailBox\').disabled=!this.checked;" name="'.self::$project.'_EMAIL_SEND" ' . (self::getCheckbox("EMAIL_SEND", self::$project) == true ? "checked" : "") . ' /> ');
+        self::output('<label class="prpt" for="input_'.self::$project.'_EMAIL_SEND">Send Emails </label> : <input type="checkbox" value="true" class="cb" onclick="document.getElementById(\'emailBox\').disabled=!this.checked;" name="'.self::$project.'_EMAIL_SEND" id="input_'.self::$project.'_EMAIL_SEND" ' . (self::getCheckbox("EMAIL_SEND", self::$project) == true ? "checked" : "") . ' /> ');
         self::output('<label class="prpt" for="emailBox">Emails </label> :<br/> <textarea id="emailBox" name="'.self::$project.'_EMAIL_ADDRESS" rows="4" cols="25" ' . (self::getCheckbox("EMAIL_SEND", self::$project) ? '' : 'disabled') . ' >' . self::getParam("EMAIL_ADDRESS") . '</textarea>');
         self::output('');
         self::output('<input type="submit" value="deploy" />');
@@ -577,11 +577,11 @@ class MD_FIELD {
 
         switch($this->type) {
             case self::TYPE_CHECKBOX:
-                return '<label class="prpt">'.$this->label.'</label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_'.$this->name.'" ' . (MD::getCheckbox($this->name, $project) ? "checked" : "") . ' />';
+                return '<label class="prpt" for="input_'.$project.'_'.$this->name.'">'.$this->label.'</label> : <input type="checkbox" value="true" class="cb" name="'.$project.'_'.$this->name.'" id="input_'.$project.'_'.$this->name.'" ' . (MD::getCheckbox($this->name, $project) ? "checked" : "") . ' />';
             case self::TYPE_TEXTFIELD:
-                return '<label class="prpt">'.$this->label.'</label> : <input type="text" name="'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
+                return '<label class="prpt" for="input_'.$project.'_'.$this->name.'">'.$this->label.'</label> : <input type="text" name="'.$project.'_'.$this->name.'" id="input_'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
             case self::TYPE_PASSFIELD:
-                return '<label class="prpt">'.$this->label.'</label> : <input type="password" name="'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
+                return '<label class="prpt" for="input_'.$project.'_'.$this->name.'">'.$this->label.'</label> : <input type="password" name="'.$project.'_'.$this->name.'" id="input_'.$project.'_'.$this->name.'" value="' . MD::getParam($this->name, $project) . '" />';
         }
 
     }
