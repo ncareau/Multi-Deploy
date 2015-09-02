@@ -14,7 +14,7 @@
  */
 class MD {
 
-    const VERSION = "0.9.8b";
+    const VERSION = "0.9.8c";
 
     // MD Main Config.
     const CONFIG_PATH = './';
@@ -24,6 +24,7 @@ class MD {
     const SHOW_STEP2 = true;
     const LOCALE = 'en_US.UTF-8';
     const IP_WHITELIST = false;
+    const COMPOSER_HOME = null;
 
     private static $ip = array(
         '127.0.0.1',
@@ -279,13 +280,13 @@ class MD {
 
         //Run composer
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            'COMPOSER_HOME="/tmp/composerhome" composer --no-ansi --no-interaction --no-progress --working-dir=%s %s install', array(
+            (MD::COMPOSER_HOME !== null ? 'COMPOSER_HOME="'.MD::COMPOSER_HOME.'"' : '') . ' composer --no-ansi --no-interaction --no-progress --working-dir=%s %s install', array(
             $projectpath,
             self::getCheckbox('RUN_COMPOSER_NO_DEV', $project) ? '--no-dev' : ''
         ), 'RUN_COMPOSER');
 
         self::$queue[$project][MD::DEPLOY][] = new MD_CMD(
-            'COMPOSER_HOME="/tmp/composerhome" composer --working-dir=%s dump-autoload --optimize', array(
+            (MD::COMPOSER_HOME !== null ? 'COMPOSER_HOME="'.MD::COMPOSER_HOME.'"' : '') . ' composer --working-dir=%s dump-autoload --optimize', array(
             $projectpath
         ), 'RUN_COMPOSER');
 
